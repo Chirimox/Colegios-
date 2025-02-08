@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Colegios y Mi Ubicación</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        #map { height: 500px; width: 100%; }
+    </style>
+</head>
+<body>
+    <h2>Mapa de Colegios y Mi Ubicación</h2>
+    <div id="map"></div>
+
+    <script>
+        // Lista de colegios con coordenadas
+        const colegios = [
+            { name: "Liceo Guillermo Labarca Hubertson", lat: -33.4551, lng: -70.7146 },
+            { name: "Liceo Polivalente Eugenio Pereira Salas", lat: -33.4542, lng: -70.7054 },
+            { name: "Liceo Politécnico Capitán Corbeta", lat: -33.4530, lng: -70.7001 },
+            { name: "Escuela Consolidada Dávila", lat: -33.4512, lng: -70.7103 },
+            { name: "Liceo Industrial Benjamín Franklin", lat: -33.4505, lng: -70.7150 }
+        ];
+
+        // Crear el mapa centrado en Estación Central, Chile
+        const map = L.map('map').setView([-33.45, -70.71], 14);
+
+        // Añadir mapa base de OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Agregar los colegios al mapa
+        colegios.forEach(colegio => {
+            L.marker([colegio.lat, colegio.lng])
+                .addTo(map)
+                .bindPopup(`<b>${colegio.name}</b>`);
+        });
+
+        // Intentar obtener la ubicación del usuario
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const userLat = position.coords.latitude;
+                    const userLng = position.coords.longitude;
+
+                    // Agregar marcador de ubicación
+                    L.marker([userLat, userLng], { 
+                        icon: L.icon({ 
+                            iconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-red.png',
+                            iconSize: [38, 38] 
+                        })
+                    }).addTo(map)
+                      .bindPopup("<b>¡Estás aquí!</b>").openPopup();
+
+                    // Mover el mapa a la ubicación actual
+                    map.setView([userLat, userLng], 15);
+                },
+                error => {
+                    alert(`Error obteniendo ubicación: ${error.message}`);
+                }
+            );
+        } else {
+            alert("Tu navegador no soporta geolocalización.");
+        }
+    </script>
+    
+</body>
+</html>
